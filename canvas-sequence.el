@@ -327,6 +327,18 @@ buffer NAME, or *canvas-sequence*.  Return the buffer."
   (canvas-diagram-show (or name "*canvas-sequence*") #'canvas-sequence-mode
                        (canvas-sequence-diagram) spec))
 
+(defun canvas-sequence-follow (buffer read &optional name callbacks)
+  "Show the sequence READ finds in BUFFER, in the buffer NAME or
+*canvas-sequence*, and follow BUFFER: once typing there pauses, READ
+reads it again and a changed spec is drawn.  READ is a function of a
+buffer giving a spec, or nil when it finds none, the last drawing then
+staying; CALLBACKS go before the sequence's own.  Return the buffer."
+  (canvas-diagram-show (or name "*canvas-sequence*") #'canvas-sequence-mode
+                       (canvas-sequence-diagram (append callbacks (list :read-source read)))
+                       (or (funcall read buffer)
+                           (user-error "canvas-sequence: no sequence to draw in %s" (buffer-name buffer)))
+                       buffer))
+
 ;;;###autoload
 (defun canvas-sequence-export (spec file)
   "Draw SPEC into FILE, a PNG, an SVG or a PDF by its name; FILE.
