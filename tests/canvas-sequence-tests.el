@@ -160,4 +160,11 @@ set to blue: more blue than red, whatever the antialiasing left."
                                    (canvas-cairo-pixel ctx (round x0)
                                                        (round (+ (canvas-sequence-top model) dy)))))))))))
 
+(ert-deftest canvas-sequence-is-the-layout-of-its-kind ()
+  ;; GIVEN canvas-sequence loaded
+  ;; THEN readers draw a sequence diagram, a spec of kind sequence, with it: it follows
+  ;;      the source AND exports a picture
+  (should (equal (alist-get 'sequence canvas-diagram-layouts)
+                 '(:follow canvas-sequence-follow :export canvas-sequence-export))))
+
 ;;; canvas-sequence-tests.el ends here

@@ -50,6 +50,7 @@
 
 (require 'cl-lib)
 (require 'canvas-diagram)
+(require 'canvas-diagram-reader)
 
 ;;;; The model
 
@@ -344,6 +345,8 @@ staying; CALLBACKS go before the sequence's own.  Return the buffer."
   "Draw SPEC into FILE, a PNG, an SVG or a PDF by its name; FILE.
 No buffer and no frame are needed, so this works in batch."
   (canvas-diagram-export (canvas-sequence-diagram) spec file))
+
+(canvas-diagram-define-layout 'sequence :follow #'canvas-sequence-follow :export #'canvas-sequence-export)
 
 (provide 'canvas-sequence)
 ;;; canvas-sequence.el ends here
