@@ -301,7 +301,8 @@ another, its head at the party it goes to, and its text above it."
   (list :build (lambda (_diagram spec) (canvas-sequence-build spec))
         :layout #'canvas-sequence--lay-out
         :draw-edges #'canvas-sequence--draw-edges
-        :node-key (lambda (_diagram node) (canvas-diagram-node-label node)))
+        :node-key (lambda (_diagram node) (canvas-diagram-node-label node))
+        :menu 'canvas-sequence-menu)
   "How a sequence diagram plugs into canvas-diagram.")
 
 (defun canvas-sequence-diagram (&optional callbacks)
@@ -315,11 +316,18 @@ another, its head at the party it goes to, and its text above it."
   "Major mode of a buffer showing a sequence diagram on a canvas.
 
 The keyboard is on one party.  The keys that move point move it, and
-\[canvas-diagram-visit-source] goes to the place the party was read
-from.  \[canvas-diagram-write] writes the picture as a PNG, an SVG or a
-PDF.
+\\[canvas-diagram-visit-source] goes to the place the party was read
+from.  \\[canvas-diagram-write] writes the picture as a PNG, an SVG or a
+PDF.  \\[canvas-keys-menu] opens the menu of looks.
 
-\{canvas-sequence-mode-map}")
+\\{canvas-sequence-mode-map}")
+
+;; A sequence has no setting of its own, so its menu holds the groups
+;; that every diagram shares.
+(canvas-diagram-define-menu canvas-sequence-menu
+  "Change how the sequence diagram is drawn.
+Each key cycles its setting and draws again; the menu stays up, so the
+effect can be tried at once.")
 
 ;;;###autoload
 (defun canvas-sequence-show (spec &optional name)

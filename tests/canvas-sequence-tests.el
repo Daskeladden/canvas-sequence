@@ -167,4 +167,51 @@ set to blue: more blue than red, whatever the antialiasing left."
   (should (equal (alist-get 'sequence canvas-diagram-layouts)
                  '(:follow canvas-sequence-follow :export canvas-sequence-export))))
 
+;;;; The menu
+
+(defmacro canvas-sequence-test--with-shown (&rest body)
+  "Run BODY in the buffer of a sequence diagram of three parties, which
+the selected window shows."
+  (declare (indent 0))
+  `(save-window-excursion
+     (let ((buffer (canvas-sequence-show (canvas-sequence-test--spec) "*canvas-sequence-test*")))
+       (unwind-protect
+           (with-current-buffer buffer ,@body)
+         (kill-buffer buffer)))))
+
+(ert-deftest canvas-sequence-the-menu-key-opens-the-menu-of-a-sequence ()
+  ;; GIVEN the buffer of a sequence diagram in the selected window
+  (canvas-sequence-test--with-shown
+    (unwind-protect
+        (progn
+          ;; WHEN the key of the menu is pressed
+          (execute-kbd-macro (kbd "SPC"))
+          ;; THEN the menu of a sequence is open
+          (should (transient-active-prefix 'canvas-sequence-menu))
+          ;; WHEN the same key is pressed again
+          (execute-kbd-macro (kbd "SPC"))
+          ;; THEN the menu is closed
+          (should-not (transient-active-prefix)))
+      ;; A menu closes in the hooks of the command loop, so a key closes
+      ;; one that a failed test left open.
+      (when (transient-active-prefix)
+        (execute-kbd-macro (kbd "C-g"))))))
+
+(ert-deftest canvas-sequence-the-menu-holds-the-shared-keys-of-a-diagram ()
+  ;; GIVEN the menu of a sequence
+  ;; THEN each key that sets a look of a diagram runs its command there
+  (pcase-dolist (`(,key . ,command) canvas-diagram-setting-keys)
+    (should (eq (plist-get (cdr (transient-get-suffix 'canvas-sequence-menu key)) :command)
+                command))))
+
+(ert-deftest canvas-sequence-the-mode-names-its-keys ()
+  ;; GIVEN the buffer of a sequence diagram
+  (canvas-sequence-test--with-shown
+    ;; WHEN the documentation of its mode is asked for
+    (let ((text (documentation 'canvas-sequence-mode)))
+      ;; THEN it names the key that opens the menu AND the key that
+      ;;      writes the picture, each as the key that it is
+      (should (string-search "SPC opens the menu" text))
+      (should (string-search "C-x C-w writes the picture" text)))))
+
 ;;; canvas-sequence-tests.el ends here
